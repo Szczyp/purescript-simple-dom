@@ -1,42 +1,82 @@
 module Main where
 
-import Prelude
+import Control.Monad.Eff (Eff)
+import Control.Monad.Eff.Console (CONSOLE, log)
+import Control.Monad.Eff.Exception (EXCEPTION)
+import Control.Monad.Eff.Random (RANDOM)
+import DOM (DOM)
+import Data.Array (length)
+import Data.DOM.Simple.Document (body, title, setTitle)
+import Data.DOM.Simple.Element (offsetLeft, offsetTop, offsetWidth, offsetHeight, offsetParent, appendChild
+                               , getStyleAttr, setStyleAttr, hasAttribute, removeAttribute, getAttribute
+                               , setAttribute, setValue, getElementById, setTextContent, querySelectorAll
+                               , querySelector, value, textContent)
+import Data.DOM.Simple.Navigator (language, appVersion, appName)
+import Data.DOM.Simple.NodeList as NL
 
-import Data.Array
-import Data.Maybe
-
-import Control.Monad.Eff
-import Control.Monad.Eff.Console
-
-import Data.DOM.Simple.Unsafe.Element(HTMLElement(..))
-import Data.DOM.Simple.Types
-import Data.DOM.Simple.Element
-import Data.DOM.Simple.Document
-import Data.DOM.Simple.Window
-import Data.DOM.Simple.Encode
-import Data.DOM.Simple.Ajax
-import Data.DOM.Simple.Events
-import Data.DOM.Simple.Navigator
-import qualified Data.DOM.Simple.NodeList as NL
-
+import Data.DOM.Simple.Unsafe.Element (HTMLElement)
+import Data.DOM.Simple.Window (globalWindow, navigator, document)
+import Data.Maybe (Maybe(..), isNothing)
+import Prelude (Unit, bind, (==), ($), (>>=))
 import Test.QuickCheck
 
 foreign import inspect :: forall a. a -> Unit
 
 foreign import tagname :: forall a. a -> String
 
+checkTagName :: forall a e.
+  String
+  -> a
+     -> Eff
+          ( console :: CONSOLE
+          , random :: RANDOM
+          , err :: EXCEPTION
+          | e
+          )
+          Unit
 checkTagName shouldBe element = do
   let name = tagname element
   quickCheck' 1 $ name == shouldBe
 
+checkContents :: forall e.
+  String
+  -> HTMLElement
+     -> Eff
+          ( dom :: DOM
+          , console :: CONSOLE
+          , random :: RANDOM
+          , err :: EXCEPTION
+          | e
+          )
+          Unit
 checkContents shouldBe element = do
   contents <- textContent (element :: HTMLElement)
   quickCheck' 1 $ contents == shouldBe
 
+checkValue :: forall e.
+  String
+  -> HTMLElement
+     -> Eff
+          ( dom :: DOM
+          , console :: CONSOLE
+          , random :: RANDOM
+          , err :: EXCEPTION
+          | e
+          )
+          Unit
 checkValue shouldBe element = do
   val <- value (element :: HTMLElement)
   quickCheck' 1 $ val == shouldBe
 
+main :: forall e.
+  (Partial) => Eff
+                 ( dom :: DOM
+                 , console :: CONSOLE
+                 , random :: RANDOM
+                 , err :: EXCEPTION
+                 | e
+                 )
+                 Unit
 main = do
   doc <- document globalWindow
 

@@ -15,12 +15,6 @@ var sources = [
   "tests/Tests.purs"
 ];
 
-var foreigns = [
-  "src/**/*.js",
-  "bower_components/purescript-*/src/**/*.js",
-  "tests/Tests.js"
-];
-
 gulp.task("clean-docs", function (cb) {
   rimraf("docs", cb);
 });
@@ -30,7 +24,7 @@ gulp.task("clean-output", function (cb) {
 });
 
 gulp.task("make", ["clean-output", "lint"], function() {
-  return purescript.psc({ src: sources, ffi: foreigns });
+  return purescript.psc({ src: sources });
 });
 
 gulp.task("test", ["test-copy-modules", "test-copy-runner"], function() {
@@ -58,7 +52,6 @@ gulp.task("docs", ["clean-docs"], function () {
         "Data.DOM.Simple.Events" :            "docs/Data/DOM/Simple/Events.md",
         "Data.DOM.Simple.Navigator" :         "docs/Data/DOM/Simple/Navigator.md",
         "Data.DOM.Simple.NodeList" :          "docs/Data/DOM/Simple/NodeList.md",
-        "Data.DOM.Simple.Sugar" :             "docs/Data/DOM/Simple/Sugar.md",
         "Data.DOM.Simple.Types" :             "docs/Data/DOM/Simple/Types.md",
         "Data.DOM.Simple.Window" :            "docs/Data/DOM/Simple/Window.md",
         "Data.DOM.Simple.Unsafe.Ajax" :       "docs/Data/DOM/Simple/Unsafe/Ajax.md",
@@ -67,7 +60,6 @@ gulp.task("docs", ["clean-docs"], function () {
         "Data.DOM.Simple.Unsafe.Events" :     "docs/Data/DOM/Simple/Unsafe/Events.md",
         "Data.DOM.Simple.Unsafe.Navigator" :  "docs/Data/DOM/Simple/Unsafe/Navigator.md",
         "Data.DOM.Simple.Unsafe.NodeList" :   "docs/Data/DOM/Simple/Unsafe/NodeList.md",
-        "Data.DOM.Simple.Unsafe.Sugar" :      "docs/Data/DOM/Simple/Unsafe/Sugar.md",
         "Data.DOM.Simple.Unsafe.Window" :     "docs/Data/DOM/Simple/Unsafe/Window.md"
       }
     });

@@ -6,7 +6,6 @@ import Control.Monad.Eff
 import Data.DOM.Simple.Unsafe.Navigator
 
 import Data.DOM.Simple.Types
-import Data.DOM.Simple.Element
 
 class Navigator b where
   appName     :: forall eff. b -> (Eff (dom :: DOM | eff) String)

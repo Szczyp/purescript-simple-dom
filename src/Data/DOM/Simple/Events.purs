@@ -1,17 +1,14 @@
 module Data.DOM.Simple.Events where
 
 import Prelude
-
 import Control.Monad.Eff
-import Control.Monad
-
-import Data.DOM.Simple.Types
-import Data.DOM.Simple.Window(document, globalWindow)
-import Data.DOM.Simple.Ajax
-import Data.DOM.Simple.Unsafe.Events
-import Data.DOM.Simple.Unsafe.Element
-import Data.DOM.Simple.Document
 import DOM
+import Data.DOM.Simple.Document
+import Data.DOM.Simple.Types
+import Data.DOM.Simple.Unsafe.Element
+import Data.DOM.Simple.Unsafe.Events
+import Partial (crash)
+import Partial.Unsafe (unsafePartial)
 
 -- XXX Should this be in the Prelude?
 class Read s where
@@ -46,7 +43,7 @@ instance mouseEventTypeShow :: Show MouseEventType where
   show MouseDblClickEvent    = "dblclick"
   show MouseUpEvent          = "mouseup"
   show MouseDownEvent        = "mousedown"
-  show (MouseUnknownEvent x) = "unknown event: " ++ x
+  show (MouseUnknownEvent x) = "unknown event: " <> x
 
 instance mouseEventTypeRead :: Read MouseEventType where
   read "mousemove"  = MouseMoveEvent
@@ -108,7 +105,7 @@ instance keyboardEventTypeShow :: Show KeyboardEventType where
   show KeydownEvent        = "keydown"
   show KeypressEvent       = "keypress"
   show KeyupEvent          = "keyup"
-  show (KeyUnknownEvent x) = "unknown key event:" ++ x
+  show (KeyUnknownEvent x) = "unknown key event:" <> x
 
 instance keyboardEventTypeRead :: Read KeyboardEventType where
   read "keydown"  = KeydownEvent
@@ -193,7 +190,7 @@ instance uiEventTypeShow :: Show UIEventType where
   show SelectEvent      = "select"
   show ResizeEvent      = "resize"
   show ScrollEvent      = "scroll"
-  show (UnknownEvent x) = "unknown uievent:" ++ x
+  show (UnknownEvent x) = "unknown uievent:" <> x
 
 instance uiEventTypeRead :: Read UIEventType where
   read "load"     = LoadEvent
@@ -248,13 +245,17 @@ instance showProgressEventType :: Show ProgressEventType where
     show ProgressProgressEvent  = "progress"
     show ProgressTimeoutEvent   = "timeout"
 
-readProgressEventType "abort"     = ProgressAbortEvent
-readProgressEventType "error"     = ProgressErrorEvent
-readProgressEventType "load"      = ProgressLoadEvent
-readProgressEventType "loadend"   = ProgressLoadEndEvent
-readProgressEventType "loadstart" = ProgressLoadStartEvent
-readProgressEventType "progress"  = ProgressProgressEvent
-readProgressEventType "timeout"   = ProgressTimeoutEvent
+readProgressEventType :: String -> ProgressEventType
+readProgressEventType s = unsafePartial (match s)
+  where match :: Partial => String -> ProgressEventType
+        match "abort"     = ProgressAbortEvent
+        match "error"     = ProgressErrorEvent
+        match "load"      = ProgressLoadEvent
+        match "loadend"   = ProgressLoadEndEvent
+        match "loadstart" = ProgressLoadStartEvent
+        match "progress"  = ProgressProgressEvent
+        match "timeout"   = ProgressTimeoutEvent
+        match _          = crash "Unknown event type."
 
 class (Event e) <= ProgressEvent e where
     progressEventType :: forall eff. e -> (Eff (dom :: DOM | eff) ProgressEventType)
